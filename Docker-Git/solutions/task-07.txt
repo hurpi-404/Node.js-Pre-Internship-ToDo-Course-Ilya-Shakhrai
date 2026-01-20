@@ -1,0 +1,203 @@
+TASK 07: DOCKER COMPOSE - SOLUTION
+===================================
+
+FILES CREATED:
+--------------
+
+1. api/server.js - Express API with /health and /data endpoints
+2. api/package.json - API dependencies
+3. api/Dockerfile - API container configuration
+4. docker-compose.yml - Multi-service orchestration
+
+
+DOCKER-COMPOSE.YML CONTENT:
+---------------------------
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    container_name: node-api
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+
+
+ALL DOCKER COMPOSE COMMANDS TO RUN:
+------------------------------------
+
+1. docker-compose up -d
+   - Starts all services in detached mode
+
+2. docker-compose ps
+   - Lists all running services
+
+3. docker-compose logs api
+   - Views logs for API service
+
+4. docker-compose logs postgres
+   - Views logs for PostgreSQL service
+
+5. docker-compose logs pgadmin
+   - Views logs for pgAdmin service
+
+6. docker-compose logs -f
+   - Follows logs for all services
+
+7. curl http://localhost:3000/health
+   - Test API health endpoint
+
+8. curl http://localhost:3000/data
+   - Test API data endpoint
+
+9. docker-compose down
+   - Stops and removes all containers
+
+10. docker-compose down -v
+    - Stops containers and removes volumes
+
+
+URLS AND CREDENTIALS:
+----------------------
+
+Node.js API:
+  URL: http://localhost:3000
+  Endpoints:
+    - GET /health - Returns health status
+    - GET /data - Returns JSON array
+
+PostgreSQL Database:
+  Host: localhost (or postgres from within Docker network)
+  Port: 5432
+  Database: mydb
+  Username: admin
+  Password: admin123
+
+pgAdmin Web Interface:
+  URL: http://localhost:5050
+  Email: admin@admin.com
+  Password: admin123
+
+To connect pgAdmin to PostgreSQL:
+  1. Open http://localhost:5050
+  2. Login with admin@admin.com / admin123
+  3. Right-click "Servers" -> "Register" -> "Server"
+  4. General tab: Name = "My Database"
+  5. Connection tab:
+     - Host: postgres
+     - Port: 5432
+     - Database: mydb
+     - Username: admin
+     - Password: admin123
+
+
+EXPECTED OUTPUT OF docker-compose ps:
+--------------------------------------
+
+NAME          IMAGE              COMMAND                  SERVICE    CREATED         STATUS         PORTS
+node-api      api                "docker-entrypoint.s…"   api        32 seconds ago   Up 32 seconds   0.0.0.0:3000->3000/tcp
+pgadmin       dpage/pgadmin4     "/entrypoint.sh"         pgadmin    32 seconds ago   Up 32 seconds   0.0.0.0:5050->80/tcp
+postgres-db   postgres:16        "docker-entrypoint.s…"   postgres   32 seconds ago   Up 32 seconds   0.0.0.0:5432->5432/tcp
+
+
+DOCKER COMPOSE EXPLANATION:
+----------------------------
+
+Services:
+  api: Node.js Express application
+    - Built from ./api directory
+    - Exposed on port 3000
+    - Depends on postgres service
+
+  postgres: PostgreSQL database
+    - Uses official postgres:16 image
+    - Environment variables for database setup
+    - Data persisted in named volume
+    - Exposed on port 5432
+
+  pgadmin: Database management interface
+    - Uses official pgAdmin4 image
+    - Web interface on port 5050
+    - Connects to postgres service via network
+
+Networks:
+  app-network: Bridge network for service communication
+    - All services connected to same network
+    - Services can communicate using service names
+
+Volumes:
+  postgres-data: Named volume for database persistence
+    - Data survives container restarts
+    - Can be backed up and restored
+
+
+TESTING STEPS:
+--------------
+
+1. Start services:
+   cd /tmp/my-first-repo
+   docker-compose up -d
+
+2. Check services are running:
+   docker-compose ps
+
+3. Test API endpoints:
+   curl http://localhost:3000/health
+   curl http://localhost:3000/data
+
+4. Access pgAdmin:
+   Open browser: http://localhost:5050
+   Login with credentials above
+
+5. View logs:
+   docker-compose logs api
+   docker-compose logs postgres
+
+6. Stop services:
+   docker-compose down
+
+
+NOTES:
+------
+- All files are listed in README.md in the ./../README.md
+- Services communicate via app-network
+- PostgreSQL data persists in volume
+- Use service names (postgres, api) for inter-service communication
+- Use localhost for external access

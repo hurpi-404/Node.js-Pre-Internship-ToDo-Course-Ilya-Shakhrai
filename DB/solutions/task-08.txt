@@ -1,0 +1,39 @@
+-- =====================================================
+-- Task 08: Implementing CRUD Operations with an ORM
+-- Environment: Windows 10, NestJS, TypeORM, Postman
+-- =====================================================
+
+-- 1. Implemented Create operation - POST endpoint to create new todos
+-- -------------------------------
+-- Created POST /todos endpoint in controller
+-- Used repository.save() method to insert new todo into database
+-- Tested in Postman with JSON body { "title": "Buy milk", "userId": 1 }
+
+-- =====================================================
+-- 2. Implemented Read operation - GET endpoint to retrieve todos (with filtering by status/user)
+-- =====================================================
+-- Created GET /todos endpoint
+-- Added query params for filtering: ?isCompleted=true and ?userId=1
+-- Used repository.find() with where conditions
+-- Tested in Postman: GET /todos?userId=1&isCompleted=false
+
+-- =====================================================
+-- 3. Implemented Update operation - PUT/PATCH endpoint to update todo by ID
+-- =====================================================
+-- Created PUT /todos/:id endpoint
+-- Used repository.update() or repository.save() with existing id
+-- Tested in Postman: PUT /todos/1 with { "title": "Updated title", "isCompleted": true }
+
+-- =====================================================
+-- 4. Implemented Delete operation - DELETE endpoint to remove todo by ID
+-- =====================================================
+-- Created DELETE /todos/:id endpoint
+-- Used repository.delete() method
+-- Tested in Postman: DELETE /todos/1
+
+-- =====================================================
+-- 5. Used TypeORM repository pattern for database operations
+-- =====================================================
+-- Injected repository via @InjectRepository() decorator
+-- Used standard repository methods: save(), find(), findOne(), update(), delete()
+-- Avoided raw SQL queries

@@ -1,0 +1,65 @@
+TASK 03: DOCKER FUNDAMENTALS - SOLUTION
+========================================
+
+1e9032b1a29a03cf942d44c5e89c1b4840fb24a3 - hash
+
+FILES CREATED:
+--------------
+1. app.js - Basic HTTP server
+2. package.json - Updated with Node.js 24.x
+3. Dockerfile - Container configuration
+
+DOCKERFILE CONTENT:
+-------------------
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "app.js"]
+
+ALL DOCKER COMMANDS RUN:
+------------------------
+1. docker build -t my-node-app:v1 .
+2. docker images
+3. docker run -d -p 3000:3000 --name my-node-container my-node-app:v1
+4. docker ps
+5. docker inspect my-node-container
+6. curl http://localhost:3000
+7. docker logs my-node-container
+8. docker stop my-node-container
+9. docker rm my-node-container
+10. docker rmi my-node-app:v1
+
+EXPECTED OUTPUTS :
+---------------------------
+docker images:
+REPOSITORY      TAG     IMAGE ID       CREATED         SIZE
+my-node-app     v1                     2 minutes ago   56.7MB
+
+docker ps:
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                    NAMES
+              my-node-app:v1   "docker-entrypoint.s…"   5 seconds ago   Up 5 seconds   0.0.0.0:3000->3000/tcp   my-node-container
+
+curl http://localhost:3000:
+Hello Docker!
+
+docker logs my-node-container:
+Server running on port 3000
+
+DOCKERFILE EXPLANATION:
+-----------------------
+FROM node:24-alpine   - Uses Node.js 24 Alpine Linux base image (lightweight)
+WORKDIR /app          - Sets working directory inside container to /app
+COPY package.json ./  - Copies package.json to container
+RUN npm install       - Installs dependencies inside container
+COPY . .              - Copies all application files to container
+EXPOSE 3000           - Documents that container listens on port 3000
+CMD ["node", "app.js"] - Default command to run when container starts

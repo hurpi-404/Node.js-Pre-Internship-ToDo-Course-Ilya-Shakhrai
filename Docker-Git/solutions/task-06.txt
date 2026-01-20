@@ -1,0 +1,144 @@
+TASK 06: GIT ADVANCED - REBASE AND CLEAN HISTORY - SOLUTION
+============================================================
+
+ALL GIT COMMANDS USED:
+----------------------
+
+1. git checkout -b feature/user-authentication
+   - Creates and switches to feature branch
+
+2. [Created auth.js file]
+   git add auth.js && git commit -m "Add authentication module"
+   - First commit: authentication module
+
+3. [Modified package.json to add bcrypt dependency]
+   git add package.json && git commit -m "Update package.json with bcrypt"
+   - Second commit: update dependencies
+
+4. [Fixed typo in auth.js - changed authenticate to authenticateUser]
+   git add auth.js && git commit -m "fix typo"
+   - Third commit: typo fix (to be squashed)
+
+5. [Created middleware.js]
+   git add middleware.js && git commit -m "Add authentication middleware"
+   - Fourth commit: middleware
+
+6. [Created auth.test.js]
+   git add auth.test.js && git commit -m "Add authentication tests"
+   - Fifth commit: tests
+
+INTERACTIVE REBASE TO SQUASH COMMITS:
+--------------------------------------
+
+7. git reset --hard 517bf84
+   - Reset to before the typo fix commit
+
+8. sed -i 's/authenticate/authenticateUser/g' auth.js
+   git commit --amend -m "Update package.json with bcrypt and fix function naming"
+   - Amended previous commit to include the typo fix (squashing)
+
+9. [Recreated middleware and test commits]
+   - Resulted in cleaner history with typo fix squashed
+
+REBASE ONTO MAIN:
+-----------------
+
+10. git checkout main
+    - Switch to main branch
+
+11. echo "# Configuration file" > config.js
+    git add config.js
+    git commit -m "Add configuration file (simulating other developer work)"
+    - Simulate another developer's work on main
+
+12. git checkout feature/user-authentication
+    - Switch back to feature branch
+
+13. git rebase main
+    - Rebase feature branch onto updated main
+    - Moves all feature commits on top of main's new commit
+
+14. git log --oneline --graph
+    - View final clean history
+
+
+COMMIT HISTORY BEFORE REBASE/SQUASH:
+-------------------------------------
+a3de790 Add authentication tests
+dec5fa7 Add authentication middleware
+dd494c8 fix typo
+517bf84 Update package.json with bcrypt
+fba5891 Add authentication module
+345f346 Add Task 05: Docker optimization with multi-stage builds
+
+
+COMMIT HISTORY AFTER SQUASHING:
+--------------------------------
+2391c1c Add authentication tests
+55a799d Add authentication middleware
+de7eaa3 Update package.json with bcrypt and fix function naming
+fba5891 Add authentication module
+345f346 Add Task 05: Docker optimization with multi-stage builds
+
+
+COMMIT HISTORY AFTER REBASE ONTO MAIN:
+---------------------------------------
+19c3605 Add authentication tests
+6a389a8 Add authentication middleware
+4f2e464 Update package.json with bcrypt and fix function naming
+eb3c24d Add authentication module
+ac8a9cb Add configuration file (simulating other developer work)
+345f346 Add Task 05: Docker optimization with multi-stage builds
+
+
+WHEN TO USE REBASE VS MERGE:
+-----------------------------
+
+USE REBASE WHEN:
+- Working on a feature branch that hasn't been shared/pushed
+- Want to maintain a linear, clean commit history
+- Need to incorporate upstream changes before submitting PR
+- Cleaning up local commits before sharing with team
+- Squashing small "fix typo" or "oops" commits
+
+USE MERGE WHEN:
+- Working on shared/public branches
+- Want to preserve complete history of how changes were integrated
+- Collaborating with multiple developers on same branch
+- Merging completed feature branches into main
+- Want to avoid rewriting history
+
+KEY DIFFERENCES:
+- Rebase: Rewrites history, creates new commit hashes, linear history
+- Merge: Preserves history, keeps original commits, creates merge commits
+
+
+CHALLENGES ENCOUNTERED:
+-----------------------
+
+1. Interactive Rebase Complexity:
+   - Interactive rebase requires text editor configuration
+   - Used git commit --amend as simpler alternative for squashing
+   - git reset --soft can also be used to combine commits
+
+2. Rewriting History:
+   - Rebase changes commit hashes
+   - Never rebase commits that have been pushed to shared branches
+   - Force push (git push --force-with-lease) needed after rebase
+
+3. Conflict Resolution:
+   - Rebase applies commits one by one
+   - May need to resolve conflicts multiple times
+   - Can use git rebase --abort to cancel if needed
+
+
+BEST PRACTICES:
+---------------
+
+1. Squash small fixup commits before pushing
+2. Use descriptive commit messages
+3. Rebase feature branches before merging to main
+4. Never rebase public/shared branches
+5. Use git rebase -i for interactive history editing
+6. Keep commits atomic and focused
+7. Test after rebasing to ensure nothing broke

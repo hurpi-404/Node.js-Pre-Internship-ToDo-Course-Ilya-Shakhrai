@@ -1,0 +1,52 @@
+Task 07: Connecting Todo Project to Database Using an ORM
+
+-- =====================================================
+-- Task 07: Connecting Todo Project to Database Using an ORM
+-- Environment: Windows 10, NestJS, TypeORM, TablePlus
+-- =====================================================
+
+-- VS CODE & TERMINAL COMMANDS:
+-- -------------------------------
+-- Opened NestJS project in VS Code
+-- =====================================================
+
+-- 1. Used TypeORM as the ORM (NestJS default)
+-- -------------------------------
+-- Decided to use TypeORM because it's NestJS's built-in default
+-- No need to install additional ORM libraries
+
+-- =====================================================
+-- 2. Configured database connection in app.module.ts
+-- =====================================================
+-- Went to app.module.ts
+-- Added TypeORM.forRoot() with database credentials (localhost, root, password, database name)
+-- Set entities path and migrations path
+-- Disabled synchronize, enabled migrations mode
+
+-- =====================================================
+-- 3. Defined User and Todo entities with proper relationships
+-- =====================================================
+-- Created entity classes for User and Todo
+-- Set up OneToMany relationship from User to Todo
+-- Set up ManyToOne relationship from Todo to User
+-- Added foreign key reference
+
+-- =====================================================
+-- 4. Created migrations for users and todos tables
+-- =====================================================
+-- Ran migration:create command for users table
+-- Wrote up() and down() methods with CREATE TABLE users
+-- Ran migration:create command for todos table
+-- Wrote up() and down() methods with CREATE TABLE todos
+-- Added foreign key constraint to todos table
+-- Ran migration:run to apply all migrations
+
+-- =====================================================
+-- 5. Implemented seed script to populate initial data
+-- =====================================================
+-- Created seed script file
+-- Wrote logic to insert 3 sample users
+-- Wrote logic to insert 5 sample todos assigned to users
+-- Ran seed script with ts-node
+
+

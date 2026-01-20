@@ -1,0 +1,24 @@
+Task 10: Caching the User's Todo List with Redis
+
+IMPLEMENTATION LOCATION:
+- NestJS v1 project with Redis caching and Prisma ORM
+- Path: Node-Express-Nest/v1/solutions/nest/apps/nest-basics/src/to-do/
+
+DESCRIPTION OF WORK:
+1. Installed Redis server on Ubuntu and ioredis client library
+2. Created RedisService with get/set/del methods and TTL support
+3. Implemented cache-aside pattern in ToDoService:
+   - findAll() checks cache first (key: todos:all), falls back to Prisma database
+4. Implemented cache invalidation on create/update/delete operations
+5. Added visual console logging ( cache hit, cache miss)
+6. TTL functionality automatically expires cached data after 5 minutes
+7. Integrated with existing Prisma ORM setup
+
+FILES CREATED/MODIFIED:
+- redis.service.ts - Redis client wrapper service
+- to-do.service.ts - Added caching to findAll() with invalidation
+- to-do.module.ts - Added RedisService provider
+- .env - Added REDIS_HOST and REDIS_PORT configuration
+- TASK-10-REDIS.md - Setup and testing instructions
+
+

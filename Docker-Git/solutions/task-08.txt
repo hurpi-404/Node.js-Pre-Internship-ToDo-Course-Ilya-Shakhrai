@@ -1,0 +1,166 @@
+TASK 08: GIT WORKFLOW - SOLUTION
+==================================
+
+REMOTE CONFIGURATION (git remote -v):
+--------------------------------------
+origin	/tmp/fork-repo (fetch)
+origin	/tmp/fork-repo (push)
+upstream	/tmp/upstream-repo (fetch)
+upstream	/tmp/upstream-repo (push)
+
+
+ALL GIT COMMANDS USED:
+----------------------
+
+SETUP REMOTES:
+1. mkdir -p /tmp/upstream-repo /tmp/fork-repo
+   - Create directories for remote repositories
+
+2. cd /tmp/upstream-repo && git init --bare
+   - Initialize bare repository (simulates company repo)
+
+3. cd /tmp/fork-repo && git init --bare
+   - Initialize bare repository (simulates your fork)
+
+4. cd /tmp/my-first-repo && git remote add upstream /tmp/upstream-repo
+   - Add upstream remote (company repo)
+
+5. git remote add origin /tmp/fork-repo
+   - Add origin remote (your fork)
+
+6. git push upstream main && git push origin main
+   - Push existing main branch to both remotes
+
+
+FEATURE BRANCH WORKFLOW:
+7. git checkout -b feature/add-logging
+   - Create feature branch for new functionality
+
+8. [Created logger.js]
+   git add logger.js && git commit -m "feat: Add logging utility module"
+   - First commit with conventional commit message
+
+9. [Modified api/server.js to integrate logging]
+   git add api/server.js && git commit -m "feat: Integrate logging into API server"
+   - Second commit
+
+10. [Created logger.test.js]
+    git add logger.test.js && git commit -m "test: Add unit tests for logger module"
+    - Third commit with tests
+
+11. git push origin feature/add-logging
+    - Push feature branch to fork
+
+
+HANDLE REVIEW FEEDBACK:
+12. [Added convenience methods to logger.js]
+    git add logger.js && git commit -m "refactor: Add convenience methods for common log levels"
+    - Additional commit addressing review comments
+
+13. git push origin feature/add-logging --force-with-lease
+    - Safely push updates (protects against overwriting others' work)
+
+
+SYNCHRONIZE WITH UPSTREAM:
+14. [Simulated upstream change on main]
+    git checkout main
+    echo "// Global configuration" > global-config.js
+    git add global-config.js && git commit -m "chore: Add global configuration file"
+    git push upstream main
+
+15. git fetch upstream
+    - Fetch latest changes from upstream
+
+16. git checkout main && git merge upstream/main
+    - Update local main with upstream changes
+
+17. git push origin main
+    - Sync fork's main with upstream
+
+18. git checkout feature/add-logging && git rebase main
+    - Rebase feature branch onto updated main
+
+
+MERGE PULL REQUEST:
+19. git checkout main
+    git merge feature/add-logging --no-ff -m "Merge pull request: Add logging functionality"
+    - Simulate PR merge with merge commit
+
+20. git push upstream main && git push origin main
+    - Push merged changes to both remotes
+
+
+STRATEGY FOR HANDLING UPSTREAM CHANGES:
+----------------------------------------
+
+1. Regular Synchronization:
+   - Fetch upstream regularly: git fetch upstream
+   - Merge upstream/main into local main: git merge upstream/main
+   - Push to fork: git push origin main
+
+2. Update Feature Branches:
+   - Rebase feature branch onto updated main: git rebase main
+   - Keeps feature branch up-to-date with latest changes
+   - Maintains clean, linear history
+
+3. Conflict Resolution:
+   - Resolve conflicts during rebase
+   - Test thoroughly after rebasing
+   - Force push with --force-with-lease to update fork
+
+4. Before Creating PR:
+   - Always sync with upstream first
+   - Rebase feature branch onto latest main
+   - Ensure all tests pass
+
+
+BEST PRACTICES FOR COMMIT MESSAGES:
+------------------------------------
+
+1. Conventional Commits Format:
+   - feat: New feature
+   - fix: Bug fix
+   - refactor: Code refactoring
+   - test: Adding tests
+   - chore: Maintenance tasks
+   - docs: Documentation changes
+
+2. Structure:
+   - Type: Brief description (50 chars or less)
+   - Blank line
+   - Detailed explanation if needed (72 chars per line)
+
+3. Examples from this task:
+   - "feat: Add logging utility module"
+   - "feat: Integrate logging into API server"
+   - "test: Add unit tests for logger module"
+   - "refactor: Add convenience methods for common log levels"
+   - "chore: Add global configuration file"
+
+4. Good Commit Message Guidelines:
+   - Use imperative mood ("Add" not "Added")
+   - Be specific and descriptive
+   - Explain why, not just what
+   - Reference issue numbers if applicable
+   - Keep first line under 50 characters
+
+
+WORKFLOW SUMMARY:
+-----------------
+
+Fork Workflow:
+1. Fork upstream repo (origin = your fork)
+2. Add upstream remote (upstream = company repo)
+3. Create feature branch from main
+4. Make commits and push to origin
+5. Create pull request from origin to upstream
+6. Address review feedback
+7. Sync with upstream regularly
+8. Merge PR when approved
+
+Key Commands:
+- git fetch upstream (get latest from company)
+- git merge upstream/main (update local main)
+- git push origin main (sync your fork)
+- git rebase main (update feature branch)
+- git push --force-with-lease (safe force push)

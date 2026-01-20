@@ -1,0 +1,299 @@
+# TASK 10: DOCKER NETWORKS & VOLUMES - SOLUTION (Windows / PowerShell)
+# ==============================================
+
+# PART 1: CUSTOM NETWORK CREATION AND MANAGEMENT
+# -----------------------------------------------
+
+# 1. Create custom bridge network
+docker network create app-network
+# Purpose: Isolated network for application containers
+
+# 2. Create network with specific subnet
+docker network create --driver bridge --subnet=172.20.0.0/16 --gateway=172.20.0.1 custom-network
+# Purpose: Control IP address range
+
+# 3. List all networks
+docker network ls
+# Purpose: View all available networks
+
+# 4. Inspect network configuration
+docker network inspect app-network
+# Purpose: View network details (subnet, gateway, connected containers)
+
+# 5. Test connectivity between containers (use PowerShell)
+docker run -d --name container1 --network app-network nginx:alpine
+docker run -d --name container2 --network app-network redis:7-alpine
+docker exec container1 ping -n 3 container2   # Windows ping uses -n
+# Purpose: Verify containers can communicate by name
+
+
+# PART 2: MULTI-CONTAINER COMMUNICATION
+# --------------------------------------
+
+# 1. Create named volume for MongoDB
+docker volume create mongo-data
+# Purpose: Persistent storage for database
+
+# 2. Run MongoDB container
+docker run -d `
+  --name mongodb `
+  --network app-network `
+  -v mongo-data:/data/db `
+  -e MONGO_INITDB_ROOT_USERNAME=admin `
+  -e MONGO_INITDB_ROOT_PASSWORD=password123 `
+  mongo:7
+# Purpose: Database server on custom network
+
+# 3. Run Mongo Express (web interface)
+docker run -d `
+  --name mongo-express `
+  --network app-network `
+  -p 8081:8081 `
+  -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin `
+  -e ME_CONFIG_MONGODB_ADMINPASSWORD=password123 `
+  -e ME_CONFIG_MONGODB_SERVER=mongodb `
+  mongo-express
+# Purpose: Web UI to manage MongoDB
+
+# 4. Test MongoDB connection
+docker exec -it mongodb mongosh -u admin -p password123
+# Inside mongosh:
+# show dbs
+# exit
+# Purpose: Verify MongoDB is working
+
+# 5. Access Mongo Express
+# Open browser: http://localhost:8081
+# Purpose: Visual confirmation of connectivity
+
+
+# PART 3: VOLUME TYPES AND DATA PERSISTENCE
+# ------------------------------------------
+
+# 1. Named Volume (Managed by Docker)
+docker volume create app-data
+docker run -d --name app1 -v app-data:/data nginx:alpine
+docker exec app1 sh -c "echo 'test data' > /data/file.txt"
+docker stop app1; docker rm app1
+docker run -d --name app2 -v app-data:/data nginx:alpine
+docker exec app2 cat /data/file.txt   # Data persists!
+# Purpose: Data survives container deletion
+
+# 2. Bind Mount (Host directory) – Windows paths
+mkdir C:\temp\my-app
+echo console.log('Hello'); > C:\temp\my-app\index.js
+docker run -d --name dev-app -v C:\temp\my-app:/app node:24-alpine node /app/index.js
+# Edit C:\temp\my-app\index.js on host, then restart container
+docker restart dev-app   # Changes reflected immediately
+# Purpose: Development workflow, live code updates
+
+# 3. Tmpfs Mount (Memory only, temporary) – works on WSL2 backend
+docker run -d --name temp-app --tmpfs /tmp:rw,size=100m nginx:alpine
+docker exec temp-app sh -c "echo 'temp' > /tmp/test.txt"
+docker restart temp-app
+docker exec temp-app cat /tmp/test.txt   # File is gone!
+# Purpose: Temporary data, sensitive info, performance
+
+# 4. Test data persistence with MongoDB
+docker exec mongodb mongosh -u admin -p password123 --eval "db.test.insertOne({name: 'John'})"
+docker stop mongodb
+docker rm mongodb
+docker run -d --name mongodb --network app-network -v mongo-data:/data/db mongo:7
+docker exec mongodb mongosh -u admin -p password123 --eval "db.test.find()"
+# Purpose: Verify volume persistence
+
+
+# PART 4: NETWORK ISOLATION TESTING
+# ---------------------------------
+
+# 1. Create two separate networks
+docker network create network-a
+docker network create network-b
+# Purpose: Demonstrate isolation
+
+# 2. Run containers on different networks
+docker run -d --name app-a --network network-a nginx:alpine
+docker run -d --name app-b --network network-b nginx:alpine
+# Purpose: Isolated containers
+
+# 3. Test isolation (should fail)
+docker exec app-a ping -n 3 app-b
+# Error: Name or service not known
+# Purpose: Containers on different networks cannot communicate
+
+# 4. Connect container to multiple networks
+docker network connect network-b app-a
+docker exec app-a ping -n 3 app-b   # Now works!
+# Purpose: Container can be on multiple networks
+
+# 5. Disconnect from network
+docker network disconnect network-b app-a
+# Purpose: Remove container from network
+
+
+# ALL COMMANDS USED (Windows PowerShell syntax):
+# ----------------------------------------------
+
+# NETWORKS:
+docker network create app-network
+docker network create --driver bridge --subnet=172.20.0.0/16 custom-network
+docker network ls
+docker network inspect app-network
+docker network connect network-b app-a
+docker network disconnect network-b app-a
+docker network rm app-network
+docker network prune
+
+# VOLUMES:
+docker volume create mongo-data
+docker volume create app-data
+docker volume ls
+docker volume inspect mongo-data
+docker volume rm mongo-data
+docker volume prune
+
+# CONTAINERS WITH NETWORKS:
+docker run -d --name mongodb --network app-network -v mongo-data:/data/db mongo:7
+docker run -d --name mongo-express --network app-network -p 8081:8081 mongo-express
+docker run -d --name app-a --network network-a nginx:alpine
+
+# CONTAINERS WITH VOLUMES:
+docker run -d -v app-data:/data nginx:alpine
+docker run -d -v C:\temp\my-app:/app node:24-alpine
+docker run -d --tmpfs /tmp:rw,size=100m nginx:alpine
+
+# TESTING:
+docker exec container1 ping -n 3 container2
+docker exec mongodb mongosh -u admin -p password123
+
+
+# OUTPUT OF docker network ls (example):
+# ----------------------------------------
+# NETWORK ID     NAME              DRIVER    SCOPE
+# abc123def456   bridge            bridge    local
+# def456ghi789   host              host      local
+# ghi789jkl012   none              null      local
+# a1b2c3d4e5f6   my-network        bridge    local
+# mno345pqr678   net-blue          bridge    local
+# pqr678stu901   net-red           bridge    local
+
+# OUTPUT OF docker volume ls (example):
+# --------------------------------------
+# DRIVER    VOLUME NAME
+# local     mongo-data
+# local     app-data
+# local     postgres-data
+
+# OUTPUT OF docker network inspect app-network (example):
+# ---------------------------------------------------------
+# [
+#     {
+#         "Name": "app-network",
+#         "Id": "d350aisfc20t42f2j5953959cj3nss21i5gfd",
+#         "Created": "2026-02-09T14:30:56.230693831+03:00",
+#         "Scope": "local",
+#         "Driver": "bridge",
+#         "EnableIPv4": true,
+#         "EnableIPv6": false,
+#         "IPAM": {
+#             "Driver": "default",
+#             "Options": null,
+#             "Config": [
+#                 {
+#                     "Subnet": "172.17.0.0/16",
+#                     "Gateway": "172.17.0.1"
+#                 }
+#             ]
+#         },
+#         "Internal": false,
+#         "Attachable": false,
+#         "Ingress": false,
+#         "ConfigFrom": {
+#             "Network": ""
+#         },
+#         "ConfigOnly": false,
+#         "Options": {},
+#         "Labels": {},
+#         "Containers": {
+#             "abc123": {
+#                 "Name": "mongodb",
+#                 "IPv4Address": "172.18.0.2/16"
+#             },
+#             "def456": {
+#                 "Name": "mongo-express",
+#                 "IPv4Address": "172.18.0.3/16"
+#             }
+#         },
+#         "Status": {
+#             "IPAM": {
+#                 "Subnets": {
+#                     "172.17.0.0/16": {
+#                         "IPsInUse": 3,
+#                         "DynamicIPsAvailable": 65533
+#                     }
+#                 }
+#             }
+#         }
+#     }
+# ]
+
+
+# VOLUME TYPES EXPLAINED:
+# ------------------------
+# 1. NAMED VOLUME:
+#    - Managed by Docker
+#    - Stored in C:\ProgramData\Docker\volumes\ (Docker Desktop)
+#    - Best for: Production databases, persistent data
+#    - Pros: Easy backup, portable, Docker manages location
+#    - Cons: Not directly accessible on host
+#    - Example: docker volume create mongo-data
+
+# 2. BIND MOUNT:
+#    - Maps host directory to container
+#    - Full Windows path required: C:\host\path:/container/path
+#    - Best for: Development, config files, logs
+#    - Pros: Direct access from host, easy editing
+#    - Cons: Host-dependent, less portable
+#    - Example: -v C:\temp\my-app:/app
+
+# 3. TMPFS MOUNT:
+#    - Stored in memory (RAM)
+#    - Data lost on container stop
+#    - Best for: Temporary files, sensitive data, caching
+#    - Pros: Fast, secure (no disk trace)
+#    - Cons: Limited by RAM, not persistent
+#    - Example: --tmpfs /tmp:rw,size=100m
+
+
+# CONNECTIVITY TEST RESULTS:
+# ---------------------------
+# Test 1: Same Network
+# docker exec container1 ping -n 3 container2
+# Result: ✓ SUCCESS - 3 packets transmitted, 3 received
+
+# Test 2: Different Networks
+# docker exec app-a ping -n 3 app-b
+# Result: ✗ FAILED - Name or service not known
+
+# Test 3: Multi-Network Container
+# docker network connect network-b app-a
+# docker exec app-a ping -n 3 app-b
+# Result: ✓ SUCCESS - 3 packets transmitted, 3 received
+
+# Test 4: MongoDB Connection
+# docker exec mongodb mongosh -u admin -p password123 --eval "db.version()"
+# Result: ✓ SUCCESS - MongoDB version 7.0.x
+
+# Test 5: Mongo Express Web UI
+# curl http://localhost:8081  (or use Invoke-WebRequest)
+# Result: ✓ SUCCESS - HTML page returned
+
+
+# CLEANUP COMMANDS (PowerShell):
+# ------------------------------
+docker stop $(docker ps -q)
+docker rm $(docker ps -a -q)
+docker network rm app-network network-a network-b custom-network
+docker volume rm mongo-data app-data
+docker network prune -f
+docker volume prune -f

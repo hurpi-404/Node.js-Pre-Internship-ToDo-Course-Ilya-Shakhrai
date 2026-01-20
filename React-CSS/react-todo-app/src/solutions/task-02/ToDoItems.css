@@ -1,0 +1,18 @@
+.completedTodo {
+  background-color: #7cff6bff;
+  text-decoration: line-through;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+.activeTodo {
+  background-color: #e3ff41ff;
+  text-decoration: none;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+li span {
+  font-size: 1.2rem;
+  margin-right: 10px;
+}

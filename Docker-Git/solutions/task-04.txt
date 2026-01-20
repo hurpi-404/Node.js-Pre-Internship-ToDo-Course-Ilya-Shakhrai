@@ -1,0 +1,49 @@
+$ git log --graph --oneline --all
+* 1ad667b (HEAD -> main) Merge feature/update-readme-v2: resolve conflict by com
+bining titles
+* 4c3a817 (feature/update-readme-v1) Update README title to My Awesome Project v
+1
+* 1e9032b (origin/main, feature/update-readme-v2) Add Docker files for Node.js a
+pp
+| * 24888e9 (origin/feature/add-dependencies, feature/add-dependencies) Add expr
+ess and lodash dependencies
+|/
+| * 9bc5549 (feature/add-scripts) Add scripts to package.json
+|/
+* 38c4af1 Add README and package.json
+* a58d399 Add .gitignore
+
+
+TASK 04: GIT CONFLICTS - SOLUTION
+=================================
+
+ALL GIT COMMANDS USED:
+----------------------
+
+1. git checkout -b feature/update-readme-v1
+2. [Edit README.md: change title to "My Awesome Project v1"]
+3. git add README.md
+4. git commit -m "Update README title to My Awesome Project v1"
+5. git checkout main
+6. git checkout -b feature/update-readme-v2
+7. [Edit README.md: change title to "My Super Project v2"]
+8. git add README.md
+9. git commit -m "Update README title to My Super Project v2"
+10. git checkout main
+11. git merge feature/update-readme-v1
+12. git merge feature/update-readme-v2
+13. [View conflict markers in README.md]
+14. [Edit README.md: resolve conflict by combining titles]
+15. git add README.md
+16. git commit -m "Merge feature/update-readme-v2: resolve conflict by combining titles"
+17. git branch -d feature/update-readme-v1 feature/update-readme-v2
+
+CONTENT OF CONFLICT MARKERS (as seen in README.md):
+----------------------------------------------------
+# My First Repo v1
+# mY projeeect v2
+
+HOW THE CONFLICT WAS RESOLVED:
+------------------------------
+Both titles were combined into a title:
+"# # mY projeeect New project (v1 & v2)"

@@ -1,0 +1,120 @@
+TASK 05: DOCKER OPTIMIZATION - SOLUTION
+========================================
+
+FILES CREATED:
+--------------
+
+1. src/index.ts - TypeScript Express server
+2. package.json - Updated with TypeScript dependencies
+3. tsconfig.json - TypeScript configuration
+4. Dockerfile.single - Single-stage build
+5. Dockerfile.multi - Multi-stage build
+6. .dockerignore - Docker ignore file
+
+
+SINGLE-STAGE DOCKERFILE:
+-------------------------
+FROM node:24
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+
+
+MULTI-STAGE DOCKERFILE:
+------------------------
+FROM node:24 AS builder
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install --production
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+
+
+.DOCKERIGNORE CONTENT:
+----------------------
+node_modules
+dist
+src
+*.ts
+tsconfig.json
+.git
+.gitignore
+*.md
+*.log
+
+
+ALL DOCKER COMMANDS TO RUN:
+----------------------------
+
+1. docker build -f Dockerfile.single -t my-ts-app:single .
+   - Builds single-stage Docker image
+
+2. docker images | grep my-ts-app
+   - Check single-stage image size
+
+3. docker build -f Dockerfile.multi -t my-ts-app:multi .
+   - Builds multi-stage Docker image
+
+4. docker images | grep my-ts-app
+   - Compare both image sizes
+
+5. docker run -d -p 3000:3000 --name ts-container my-ts-app:multi
+   - Run the optimized multi-stage container
+
+6. curl http://localhost:3000
+   - Test the application
+
+7. docker logs ts-container
+   - View container logs
+
+8. docker stop ts-container && docker rm ts-container
+   - Cleanup
+
+
+EXPECTED IMAGE SIZE COMPARISON:
+--------------------------------
+
+Single-stage (node:24):
+REPOSITORY    TAG       SIZE
+my-ts-app     single    ~1.1GB
+
+Multi-stage (node:24-alpine):
+REPOSITORY    TAG       SIZE
+my-ts-app     multi     ~200MB
+
+Size reduction: ~80-85%
+
+
+
+
+

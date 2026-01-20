@@ -1,0 +1,57 @@
+TASK 02: GIT BRANCHING - SOLUTION
+==================================
+
+ALL GIT COMMANDS USED:
+----------------------
+==================================
+1. git checkout -b feature/add-scripts
+   - Creates a new branch called 'feature/add-scripts' and switches to it
+==================================
+2. [Modified package.json to add scripts section: "start", "test", "dev"]
+==================================
+3. git add package.json
+   - Stages the modified package.json file
+==================================
+4. git commit -m "Add scripts to package.json"
+   - Commits the changes on the feature branch
+==================================
+5. git checkout main
+   - Switches back to the main branch
+==================================
+6. cat package.json
+   - Verifies that main branch still has the old version (no scripts)
+==================================
+7. git checkout -b feature/add-dependencies
+   - Creates another new branch from main and switches to it
+==================================
+8. [Modified package.json to add dependencies: express and lodash]
+==================================
+9. git add package.json
+   - Stages the changes
+==================================
+10. git commit -m "Add express and lodash dependencies"
+    - Commits the changes on the feature/add-dependencies branch
+==================================
+11. git checkout main
+    - Switches back to main for merging
+==================================
+12. git merge feature/add-scripts
+    - Merges the feature/add-scripts branch into main (fast-forward or recursive)
+==================================
+13. git branch -d feature/add-scripts
+    - Deletes the merged feature branch
+==================================
+14. git branch -a
+    - Lists all remaining branches (main and feature/add-dependencies)
+==================================
+15. git log --graph --oneline --all
+    - Shows commit history with graph visualization
+
+==================================
+OUTPUT OF git log --graph --oneline --all:
+-------------------------------------------
+3bcbde6 (HEAD -> main) Merge branch 'feature/add-scripts'
+ 9bc5549 (feature/add-scripts) Add scripts to package.json
+24888e94ab20f535f5ebe52284a0ae78a19ff5e8 (feature/add-dependencies) Add express and lodash dependencies
+38c4af17135eb8390baca90e34a151b557fb71b2 Add README and package.json
+a58d39939ff4b608ba5fd8f0ca122c6995a2e8a8 Add .gitignore
